@@ -1,14 +1,15 @@
 # !/usr/bin/env python
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging
-import os
 import commands
+from config import TELEGRAM_TOKEN
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
+
 
 # def echo(bot, update):
 #     bot.sendMessage(update.message.chat_id, text='message received')
@@ -21,7 +22,7 @@ def error(bot, update, error):
 
 def main():
     # Create the EventHandler and pass it your bot's token.
-    updater = Updater(os.environ['TELEGRAM_TOKEN'])
+    updater = Updater(TELEGRAM_TOKEN)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
@@ -30,6 +31,7 @@ def main():
     dp.add_handler(CommandHandler("start", commands.start))
     dp.add_handler(CommandHandler("help", commands.help))
     dp.add_handler(CommandHandler("info", commands.info))
+    dp.add_handler(CommandHandler("register", commands.register))
 
     # # on noncommand i.e message - echo the message on Telegram
     # dp.add_handler(MessageHandler([Filters.text], echo))
