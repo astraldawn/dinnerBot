@@ -28,10 +28,17 @@ def main():
     dp = updater.dispatcher
 
     # on different commands - answer in Telegram
-    dp.add_handler(CommandHandler("start", commands.start))
+    dp.add_handler(CommandHandler("welcome", commands.welcome))
     dp.add_handler(CommandHandler("help", commands.help))
     dp.add_handler(CommandHandler("info", commands.info))
+
+    # User registration
     dp.add_handler(CommandHandler("register", commands.register))
+
+    # Meal related
+    dp.add_handler(CommandHandler("start", commands.start_meal, pass_args=True))
+    dp.add_handler(CommandHandler("end", commands.end_meal, pass_args=True))
+    dp.add_handler(CommandHandler("eating", commands.eating, pass_args=True))
 
     # # on noncommand i.e message - echo the message on Telegram
     # dp.add_handler(MessageHandler([Filters.text], echo))
