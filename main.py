@@ -34,6 +34,7 @@ def main():
 
     # User registration
     dp.add_handler(CommandHandler("register", commands.register))
+    dp.add_handler(CommandHandler("register_group", commands.register_group))
 
     # Meal related
     dp.add_handler(CommandHandler("start", commands.start_meal, pass_args=True))

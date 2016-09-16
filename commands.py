@@ -11,27 +11,50 @@ def help(bot, update):
     bot.sendMessage(update.message.chat_id, text='Help!')
 
 
-def info(bot, update):
+def get_info(update):
     user = update.message.from_user
     user_name = user.first_name + ' ' + user.last_name
-    user_id = str(user.id)
-    bot.sendMessage(update.message.chat_id, text=user_name + ' ' + user_id)
+    group = update.message.chat_id
+    user_id = user.id
+    return user_name.strip(), user_id, group
+
+
+def info(bot, update):
+    user_name, user_id, group = get_info(update)
+    bot.sendMessage(group, text=user_name + ' ' + user_id)
+
+
+# Register group (should automate this though)
+def register_group(bot, update):
+    user_name, user_id, group = get_info(update)
+
+    # Server request
+    data = {
+        'group': group
+    }
+    r = requests.post(API_URL + 'register_group', json=data)
+
+    # Response handling
+    if r.status_code == 200:
+        bot.sendMessage(group, text='Group registered')
+    else:
+        bot.sendMessage(group, text='Group already registered / registration failed')
 
 
 # Registration command
 def register(bot, update):
-    user = update.message.from_user
-    user_name = user.first_name + ' ' + user.last_name
+    user_name, user_id, group = get_info(update)
+
+    # Server request
     data = {
-        'id': user.id,
-        'username': user_name
+        'id': user_id,
+        'username': user_name,
+        'groupID': group
     }
     r = requests.post(API_URL + 'register', json=data)
 
-    response = r.json()
-
-    group = update.message.chat_id
-    if response['result'] == 'success':
+    # Response handling
+    if r.status_code == 200:
         bot.sendMessage(group, text=user_name + ': Successful registration')
     else:
         bot.sendMessage(group, text=user_name + ': Registration failed / already registered')
@@ -39,41 +62,61 @@ def register(bot, update):
 
 # Start meal
 def start_meal(bot, update, args):
-    group = update.message.chat_id
-    user = update.message.from_user
-    user_name = user.first_name + ' ' + user.last_name
+    user_name, user_id, group = get_info(update)
 
     # TODO: Check the number of args
-    meal_type = args[0]
+    meal_type = args[0].strip()
 
-    # Server verification that current group does not have a running meal
+    # Request
+    data = {
+        'group': group,
+        'meal_type': meal_type
+    }
+    r = requests.post(API_URL + 'add_meal', json=data)
 
-    bot.sendMessage(group, text='start ' + meal_type)
+    # Response handling
+    if r.status_code == 200:
+        bot.sendMessage(group, text='Who is eating ' + meal_type + '?')
+    else:
+        bot.sendMessage(group, text='Another meal is running / unable to start meal')
 
 
 # End meal
 def end_meal(bot, update, args):
-    group = update.message.chat_id
+    user_name, user_id, group = get_info(update)
 
-    # Server verification that group has a running meal
+    # Request
+    data = {
+        'group': group
+    }
+    r = requests.post(API_URL + 'end_meal', json=data)
 
+    # Response handling
     # Do not end the meal immediately, should trigger some handlers for warnings
     # E.g. 15min / 10min
-    bot.sendMessage(group, text='meal closed')
+    if r.status_code == 200:
+        bot.sendMessage(group, text='Meal ended')
+    else:
+        bot.sendMessage(group, text='Unable to end meal')
 
 
 # Eating
 def eating(bot, update, args):
-    group = update.message.chat_id
-    user = update.message.from_user
-    user_name = user.first_name + ' ' + user.last_name
+    user_name, user_id, group = get_info(update)
 
-    portion = '1'
-
+    # Argument handling
+    portion = 1
     if len(args) > 0:
         # TODO: Check arg value
-        portion = args[0]
+        portion = int(args[0])
+    portion_text = str(portion) + (' portion' if portion == 1 else ' portions')
 
-    portion_text = portion + (' portion' if portion == '1' else ' portions')
+    # Request
+    data = {
+        'user_id': user_id,
+        'group': group,
+        'portions': portion
+    }
+    # r = requests.post(API_URL + 'eating', json=data)
 
     bot.sendMessage(group, text=user_name + ' eating ' + portion_text)
