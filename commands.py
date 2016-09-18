@@ -1,6 +1,5 @@
 from config import API_URL
 import requests
-import json
 
 
 def welcome(bot, update):
@@ -138,3 +137,31 @@ def eating(bot, update, args):
 # Cooking
 def cooking(bot, update, args):
     meal_participation(bot, update, args, cooked=True)
+
+
+def meal_info(bot, update, args):
+    user_name, user_id, group = get_info(update)
+
+    # Request
+    data = {
+        'group': group
+    }
+    r = requests.post(API_URL + 'meal_info', json=data)
+
+    if r.status_code == 200:
+        meal_participations = r.json()
+        output = ''
+        total_portions = 0
+        if len(meal_participations) == 0:
+            bot.sendMessage(group, 'No information to display')
+
+        for mp in meal_participations:
+            output += str(mp['user_name']) + ' '
+            output += str(mp['portions']) + (' portion' if mp['portions'] == 1 else ' portions')
+            output += ' - cooking' if mp['cooked'] else ''
+            output += '\n'
+            total_portions += mp['portions']
+        output += str(total_portions) + (' portion' if total_portions == 1 else ' portions') + ' required'
+        bot.sendMessage(group, text=output)
+    else:
+        bot.sendMessage(group, text='Unable to retrieve meal information')
