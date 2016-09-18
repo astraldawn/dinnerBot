@@ -120,7 +120,9 @@ def meal_participation(bot, update, args, cooked):
     r = requests.post(API_URL + 'eating', json=data)
 
     if r.status_code == 200:
-        if cooked:
+        if portion == 0:
+            bot.sendMessage(group, text=user_name + ' removed from meal')
+        elif cooked:
             bot.sendMessage(group, text='Thanks for cooking, ' + user_name + '! You are eating ' + portion_text)
         else:
             bot.sendMessage(group, text=user_name + ' eating ' + portion_text)
