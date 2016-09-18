@@ -100,8 +100,7 @@ def end_meal(bot, update, args):
         bot.sendMessage(group, text='Unable to end meal')
 
 
-# Eating
-def eating(bot, update, args):
+def meal_participation(bot, update, args, cooked):
     user_name, user_id, group = get_info(update)
 
     # Argument handling
@@ -115,8 +114,25 @@ def eating(bot, update, args):
     data = {
         'user_id': user_id,
         'group': group,
-        'portions': portion
+        'portions': portion,
+        'cooked': cooked
     }
-    # r = requests.post(API_URL + 'eating', json=data)
+    r = requests.post(API_URL + 'eating', json=data)
 
-    bot.sendMessage(group, text=user_name + ' eating ' + portion_text)
+    if r.status_code == 200:
+        if cooked:
+            bot.sendMessage(group, text='Thanks for cooking, ' + user_name + '! You are eating ' + portion_text)
+        else:
+            bot.sendMessage(group, text=user_name + ' eating ' + portion_text)
+    else:
+        bot.sendMessage(group, text='Unable to update, is a meal started?')
+
+
+# Eating
+def eating(bot, update, args):
+    meal_participation(bot, update, args, cooked=False)
+
+
+# Cooking
+def cooking(bot, update, args):
+    meal_participation(bot, update, args, cooked=True)
