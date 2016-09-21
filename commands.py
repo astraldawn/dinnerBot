@@ -139,12 +139,19 @@ def cooking(bot, update, args):
     meal_participation(bot, update, args, cooked=True)
 
 
+# Return information for currently running meal
 def meal_info(bot, update, args):
     user_name, user_id, group = get_info(update)
 
+    # Argument handling
+    meal_id = -1
+    if len(args) > 0:
+        meal_id = args[0]
+
     # Request
     data = {
-        'group': group
+        'group': group,
+        'meal_id': meal_id
     }
     r = requests.post(API_URL + 'meal_info', json=data)
 
@@ -154,6 +161,7 @@ def meal_info(bot, update, args):
         total_portions = 0
         if len(meal_participations) == 0:
             bot.sendMessage(group, 'No information to display')
+            return
 
         for mp in meal_participations:
             output += str(mp['user_name']) + ' '
@@ -165,3 +173,34 @@ def meal_info(bot, update, args):
         bot.sendMessage(group, text=output)
     else:
         bot.sendMessage(group, text='Unable to retrieve meal information')
+
+
+# Return the last n meals
+def get_meals(bot, update, args):
+    user_name, user_id, group = get_info(update)
+
+    # Argument handling
+    number = 5
+    if len(args) > 0:
+        number = args[0]
+
+    data = {
+        'group': group,
+        'number': number
+    }
+    r = requests.post(API_URL + 'meals', json=data)
+
+    if r.status_code == 200:
+        meals = r.json()
+        output = ''
+        if len(meals) == 0:
+            bot.sendMessage(group, 'No information to display')
+
+        for meal in meals:
+            output += 'ID: ' + str(meal[0]) + '     '
+            output += 'Portions: ' + str(meal[1])
+            output += '\n'
+        output += str(len(meals)) + ' meals retrieved'
+        bot.sendMessage(group, text=output)
+    else:
+        bot.sendMessage(group, text='Unable to retrieve information')

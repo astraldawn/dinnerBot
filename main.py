@@ -42,6 +42,7 @@ def main():
     dp.add_handler(CommandHandler("eating", commands.eating, pass_args=True))
     dp.add_handler(CommandHandler("cooking", commands.cooking, pass_args=True))
     dp.add_handler(CommandHandler("meal_info", commands.meal_info, pass_args=True))
+    dp.add_handler(CommandHandler("get_meals", commands.get_meals, pass_args=True))
 
     # # on noncommand i.e message - echo the message on Telegram
     # dp.add_handler(MessageHandler([Filters.text], echo))
