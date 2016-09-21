@@ -1,5 +1,6 @@
 from config import API_URL
 import requests
+import sys
 
 
 def welcome(bot, update):
@@ -195,12 +196,48 @@ def get_meals(bot, update, args):
         output = ''
         if len(meals) == 0:
             bot.sendMessage(group, 'No information to display')
+            return
 
         for meal in meals:
             output += 'ID: ' + str(meal[0]) + '     '
             output += 'Portions: ' + str(meal[1])
             output += '\n'
         output += str(len(meals)) + ' meals retrieved'
+        bot.sendMessage(group, text=output)
+    else:
+        bot.sendMessage(group, text='Unable to retrieve information')
+
+
+# Tally the last n users
+def tally_group(bot, update, args):
+    user_name, user_id, group = get_info(update)
+
+    data = {
+        'group': group,
+        'set_date': False if len(args) == 0 else True
+    }
+    r = requests.post(API_URL + 'tally_group', json=data)
+
+    if r.status_code == 200:
+        users = r.json()
+        output = ''
+        total = 0
+        most_social = ''
+        least_portions = sys.maxsize
+        if len(users) == 0:
+            bot.sendMessage(group, 'No information to display')
+            return
+
+        for user, portions in users.items():
+            output += user + ' - ' + str(portions) + '\n'
+            total += portions
+            if portions < least_portions:
+                # Need to handle the case where multiple people tie
+                most_social = user
+                least_portions = portions
+        output += str(total) + ' portions consumed\n'
+        output += most_social + ' has the most life'
+
         bot.sendMessage(group, text=output)
     else:
         bot.sendMessage(group, text='Unable to retrieve information')
