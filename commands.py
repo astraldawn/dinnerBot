@@ -1,6 +1,7 @@
 from config import API_URL
 import requests
 import sys
+import datetime
 
 
 def welcome(bot, update):
@@ -238,6 +239,29 @@ def tally_group(bot, update, args):
         output += str(total) + ' portions consumed\n'
         output += most_social + ' has the most life'
 
+        bot.sendMessage(group, text=output)
+    else:
+        bot.sendMessage(group, text='Unable to retrieve information')
+
+
+# Tally information for the user
+def tally_user(bot, update, args):
+    user_name, user_id, group = get_info(update)
+
+    data = {
+        'group': group,
+        'user_id': user_id
+    }
+    r = requests.post(API_URL + 'tally_user', json=data)
+
+    if r.status_code == 200:
+        output = ''
+        meals = r.json()
+        print(meals)
+
+        for meal in meals:
+            output += meal['type'] + ' ' + meal['date'] + '\n'
+        output += 'Involved in ' + str(len(meals)) + ' meals'
         bot.sendMessage(group, text=output)
     else:
         bot.sendMessage(group, text='Unable to retrieve information')
