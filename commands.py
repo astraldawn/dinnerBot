@@ -2,6 +2,7 @@ from config import API_URL
 import requests
 import sys
 import datetime
+import utils
 
 
 def welcome(bot, update):
@@ -12,22 +13,14 @@ def help(bot, update):
     bot.sendMessage(update.message.chat_id, text='Help!')
 
 
-def get_info(update):
-    user = update.message.from_user
-    user_name = user.first_name + ' ' + user.last_name
-    group = update.message.chat_id
-    user_id = user.id
-    return user_name.strip(), user_id, group
-
-
 def info(bot, update):
-    user_name, user_id, group = get_info(update)
+    user_name, user_id, group = utils.get_info(update)
     bot.sendMessage(group, text=user_name + ' ' + user_id)
 
 
 # Register group (should automate this though)
 def register_group(bot, update):
-    user_name, user_id, group = get_info(update)
+    user_name, user_id, group = utils.get_info(update)
 
     # Server request
     data = {
@@ -44,7 +37,7 @@ def register_group(bot, update):
 
 # Registration command
 def register(bot, update):
-    user_name, user_id, group = get_info(update)
+    user_name, user_id, group = utils.get_info(update)
 
     # Server request
     data = {
@@ -53,6 +46,8 @@ def register(bot, update):
         'groupID': group
     }
     r = requests.post(API_URL + 'register', json=data)
+
+    print(r.text)
 
     # Response handling
     if r.status_code == 200:
@@ -63,7 +58,7 @@ def register(bot, update):
 
 # Start meal
 def start_meal(bot, update, args):
-    user_name, user_id, group = get_info(update)
+    user_name, user_id, group = utils.get_info(update)
 
     # TODO: Check the number of args
     meal_type = args[0].strip()
@@ -84,7 +79,7 @@ def start_meal(bot, update, args):
 
 # End meal
 def end_meal(bot, update, args):
-    user_name, user_id, group = get_info(update)
+    user_name, user_id, group = utils.get_info(update)
 
     # Request
     data = {
@@ -102,7 +97,7 @@ def end_meal(bot, update, args):
 
 
 def meal_participation(bot, update, args, cooked):
-    user_name, user_id, group = get_info(update)
+    user_name, user_id, group = utils.get_info(update)
 
     # Argument handling
     portion = 1
@@ -143,7 +138,7 @@ def cooking(bot, update, args):
 
 # Return information for currently running meal
 def meal_info(bot, update, args):
-    user_name, user_id, group = get_info(update)
+    user_name, user_id, group = utils.get_info(update)
 
     # Argument handling
     meal_id = -1
@@ -179,7 +174,7 @@ def meal_info(bot, update, args):
 
 # Return the last n meals
 def get_meals(bot, update, args):
-    user_name, user_id, group = get_info(update)
+    user_name, user_id, group = utils.get_info(update)
 
     # Argument handling
     number = 5
@@ -211,7 +206,7 @@ def get_meals(bot, update, args):
 
 # Tally the last n users
 def tally_group(bot, update, args):
-    user_name, user_id, group = get_info(update)
+    user_name, user_id, group = utils.get_info(update)
 
     data = {
         'group': group,
@@ -246,7 +241,7 @@ def tally_group(bot, update, args):
 
 # Tally information for the user
 def tally_user(bot, update, args):
-    user_name, user_id, group = get_info(update)
+    user_name, user_id, group = utils.get_info(update)
 
     data = {
         'group': group,
