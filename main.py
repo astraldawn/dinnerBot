@@ -29,7 +29,7 @@ def main():
     dp = updater.dispatcher
 
     # Load nlp command handler
-    nlp_en = nlp_commands.NlpEnglish()
+    # nlp_en = nlp_commands.NlpEnglish()
 
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("welcome", commands.welcome))
@@ -50,14 +50,20 @@ def main():
     dp.add_handler(CommandHandler("meal_info", commands.meal_info, pass_args=True))
     dp.add_handler(CommandHandler("get_meals", commands.get_meals, pass_args=True))
 
+    # Modification
+    dp.add_handler(CommandHandler("add_chef", commands.add_chef, pass_args=True))
+    dp.add_handler(CommandHandler("remove_chef", commands.remove_chef, pass_args=True))
+    dp.add_handler(CommandHandler("change_portions", commands.change_portions, pass_args=True))
+
     # # on noncommand i.e message - echo the message on Telegram
-    dp.add_handler(MessageHandler([Filters.text], nlp_en.echo))
+    # dp.add_handler(MessageHandler([Filters.text], nlp_en.echo))
 
     # log all errors
     dp.add_error_handler(error)
 
     # Start the Bot
     updater.start_polling()
+    print('----- Bot running -----')
 
     # Run the bot until the you presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since

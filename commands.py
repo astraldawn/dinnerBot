@@ -3,6 +3,7 @@ import requests
 import sys
 import datetime
 import utils
+import errors
 
 
 def welcome(bot, update):
@@ -101,9 +102,13 @@ def meal_participation(bot, update, args, cooked):
 
     # Argument handling
     portion = 1
-    if len(args) > 0:
+    if len(args) == 1:
         # TODO: Check arg value
         portion = int(args[0])
+    else:
+        utils.throw_error(bot, group, errors.WRONG_N_ARGS)
+        return
+
     portion_text = str(portion) + (' portion' if portion == 1 else ' portions')
 
     # Request
@@ -142,7 +147,7 @@ def meal_info(bot, update, args):
 
     # Argument handling
     meal_id = -1
-    if len(args) > 0:
+    if len(args) == 1:
         meal_id = args[0]
 
     # Request
@@ -260,3 +265,66 @@ def tally_user(bot, update, args):
         bot.sendMessage(group, text=output)
     else:
         bot.sendMessage(group, text='Unable to retrieve information')
+
+
+# Meal modification routes
+def modify_cooking(bot, update, args, cooking):
+    user_name, user_id, group = utils.get_info(update)
+
+    meal_id = None
+    if len(args) == 1:
+        meal_id = int(args[0])
+    else:
+        utils.throw_error(bot, group, errors.WRONG_N_ARGS)
+        return
+
+    data = {
+        'user_id': user_id,
+        'meal_id': meal_id
+    }
+
+    if cooking:
+        r = requests.post(API_URL + 'add_chef', json=data)
+    else:
+        r = requests.post(API_URL + 'remove_chef', json=data)
+
+    if r.status_code == 200:
+        bot.sendMessage(group, text='Update successful')
+    else:
+        bot.sendMessage(group, text='Update unsuccessful')
+
+
+def add_chef(bot, update, args):
+    modify_cooking(bot, update, args, cooking=True)
+
+
+def remove_chef(bot, update, args):
+    modify_cooking(bot, update, args, cooking=False)
+
+
+# Change number of portions
+def change_portions(bot, update, args):
+    user_name, user_id, group = utils.get_info(update)
+
+    meal_id = None
+    portions = None
+
+    if len(args) == 2:
+        meal_id = int(args[0])
+        portions = int(args[1])
+    else:
+        utils.throw_error(bot, group, errors.WRONG_N_ARGS)
+        return
+
+    data = {
+        'user_id': user_id,
+        'meal_id': meal_id,
+        'portions': portions
+    }
+
+    r = requests.post(API_URL + 'change_portions', json=data)
+
+    if r.status_code == 200:
+        bot.sendMessage(group, text='Update successful')
+    else:
+        bot.sendMessage(group, text='Update unsuccessful')
