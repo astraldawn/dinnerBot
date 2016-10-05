@@ -73,6 +73,14 @@ def start_meal(bot, update, args):
 
     # Response handling
     if r.status_code == 200:
+        data2 = {
+            'user_id': user_id,
+            'group': group,
+            'portions': 1,
+            'cooked': True
+        }
+        r2 = requests.post(API_URL + 'eating', json=data2)
+        
         bot.sendMessage(group, text='Who is eating ' + meal_type + '?')
     else:
         bot.sendMessage(group, text='Another meal is running / unable to start meal')
