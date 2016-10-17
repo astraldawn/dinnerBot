@@ -64,8 +64,7 @@ def start_meal(bot, update, args):
     # TODO: Check the number of args
 
     if len(args) == 0:
-        bot.sendMessage(group, text=user_name + ", please indicate meal type, "
-                                                  "for example: '/start lunch'")
+        bot.sendMessage(group, text=user_name + ", please indicate meal type, for example: '/start lunch'")
         return
     else:
         meal_type = args[0].strip()
@@ -86,7 +85,7 @@ def start_meal(bot, update, args):
             'cooked': True
         }
         r2 = requests.post(API_URL + 'eating', json=data2)
-        
+        bot.sendMessage(group, text='Thanks for cooking, ' + user_name + '! You are eating 1 portion')
         bot.sendMessage(group, text='Who is eating ' + meal_type + '?')
     else:
         bot.sendMessage(group, text='Another meal is running / unable to start meal')
@@ -110,15 +109,28 @@ def end_meal(bot, update, args):
     else:
         bot.sendMessage(group, text='Unable to end meal')
 
+def representsInt(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
 
 def meal_participation(bot, update, args, cooked):
     user_name, user_id, group = utils.get_info(update)
 
     # Argument handling
-    portion = 1
     if len(args) == 1:
         # TODO: Check arg value
+        if not representsInt(args[0]):
+            bot.sendMessage(group, text="Zzz. Please type an integer as the argument, or nothing at all.")
+            return
+        elif int(args[0]) < 0:
+            bot.sendMessage(group, text="Nice try...but nope.")
+            return
         portion = int(args[0])
+    elif len(args) == 0:
+        portion = 1
     else:
         utils.throw_error(bot, group, errors.WRONG_N_ARGS)
         return
