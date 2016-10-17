@@ -62,7 +62,13 @@ def start_meal(bot, update, args):
     user_name, user_id, group = utils.get_info(update)
 
     # TODO: Check the number of args
-    meal_type = args[0].strip()
+
+    if len(args) == 0:
+        bot.sendMessage(group, text=user_name + ", please indicate meal type, "
+                                                  "for example: '/start lunch'")
+        return
+    else:
+        meal_type = args[0].strip()
 
     # Request
     data = {
