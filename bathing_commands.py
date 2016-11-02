@@ -22,3 +22,29 @@ def check_bathing(bot, update, args):
     else:
         bot.sendMessage(chat_id, text='Unable to check. Are you sure you are registered with a group?')
 
+
+def start_bathing(bot, update, args):
+    user_name, user_id, chat_id = utils.get_info(update)
+    data = {"user_id": user_id}
+    r = requests.post(API_URL + 'start_bathing', json=data)
+    if r.status_code == 200:
+        message = "You have started bathing, {}. The bathroom is yours!".format(user_name)
+        bot.sendMessage(chat_id, text=message)
+    else:
+        bot.sendMessage(chat_id, text="Oh no, something went wrong. Please try again later.")
+
+
+def stop_bathing(bot, update, args):
+    user_name, user_id, chat_id = utils.get_info(update)
+    data = {"user_id": user_id}
+    r = requests.post(API_URL + 'stop_bathing', json=data)
+    if r.status_code == 200:
+        response = r.json()
+        if response['correct_person']:
+            bot.sendMessage(chat_id, text="Thanks for telling me. Hope you had a good bath!")
+        else:
+            bot.sendMessage(chat_id, text="Sorry, you can't end a bathing session on behalf of someone else.")
+    elif r.status_code == 400:
+        bot.sendMessage(chat_id, text="Unable to process request. Are you sure you even started bathing?")
+    else:
+        bot.sendMessage(chat_id, text="Oh no, something went wrong. Please try again later.")

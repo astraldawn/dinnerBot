@@ -58,6 +58,8 @@ def main():
 
     # Bathing related
     dp.add_handler(CommandHandler("check_bathing", bathing_commands.check_bathing, pass_args=True))
+    dp.add_handler(CommandHandler("bathing", bathing_commands.start_bathing, pass_args=True))
+    dp.add_handler(CommandHandler("done", bathing_commands.stop_bathing, pass_args=True))
 
     # # on noncommand i.e message - echo the message on Telegram
     # dp.add_handler(MessageHandler([Filters.text], nlp_en.echo))
