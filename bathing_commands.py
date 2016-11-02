@@ -28,7 +28,13 @@ def start_bathing(bot, update, args):
     data = {"user_id": user_id}
     r = requests.post(API_URL + 'start_bathing', json=data)
     if r.status_code == 200:
-        message = "You have started bathing, {}. The bathroom is yours!".format(user_name)
+        response = r.json()
+        if response["same_person"]:
+            message = "You have already started bathing. Do you want to end the bathing session instead?"
+        elif response["other_person"]:
+            message = "Don't be an idiot. Someone else is bathing right now. "
+        else:
+            message = "You have started bathing, {}. The bathroom is yours!".format(user_name)
         bot.sendMessage(chat_id, text=message)
     else:
         bot.sendMessage(chat_id, text="Oh no, something went wrong. Please try again later.")
