@@ -2,6 +2,7 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging
 import commands
+import bathing_commands
 from nlp import nlp_commands
 from config import TELEGRAM_TOKEN
 
@@ -54,6 +55,11 @@ def main():
     dp.add_handler(CommandHandler("add_chef", commands.add_chef, pass_args=True))
     dp.add_handler(CommandHandler("remove_chef", commands.remove_chef, pass_args=True))
     dp.add_handler(CommandHandler("change_portions", commands.change_portions, pass_args=True))
+
+    # Bathing related
+    dp.add_handler(CommandHandler("check_bathing", bathing_commands.check_bathing, pass_args=True))
+    dp.add_handler(CommandHandler("bathing", bathing_commands.start_bathing, pass_args=True))
+    dp.add_handler(CommandHandler("done", bathing_commands.stop_bathing, pass_args=True))
 
     # # on noncommand i.e message - echo the message on Telegram
     # dp.add_handler(MessageHandler([Filters.text], nlp_en.echo))

@@ -66,13 +66,25 @@ def start_meal(bot, update, args):
     if len(args) == 0:
         bot.sendMessage(group, text=user_name + ", please indicate meal type, for example: '/start lunch'")
         return
+    if len(args) == 2:
+        utils.throw_error(bot, group, errors.WRONG_N_ARGS)
+        return
+    if len(args) > 2 and args[1] != "for":
+        utils.throw_error(bot, group, errors.WRONG_N_ARGS)
+        return
+    if len(args) > 2 and args[1] == "for":
+        meal_type = args[0].strip()
+        actual_date_string = ' '.join(args[2:])
+
     else:
         meal_type = args[0].strip()
+        actual_date_string = None
 
     # Request
     data = {
         'group': group,
-        'meal_type': meal_type
+        'meal_type': meal_type,
+        'actual_date_string': actual_date_string
     }
     r = requests.post(API_URL + 'add_meal', json=data)
 
@@ -85,7 +97,12 @@ def start_meal(bot, update, args):
             'cooked': True
         }
         r2 = requests.post(API_URL + 'eating', json=data2)
-        bot.sendMessage(group, text='Thanks for cooking, ' + user_name + '! You are eating 1 portion')
+        datetime_string = r.json()
+        if datetime_string:
+            message = 'Thanks for volunteering to cook on ' + datetime_string + ', ' + user_name + '! You are eating 1 portion.'
+        else:
+            message = 'Thanks for cooking, ' + user_name + '! You are eating 1 portion.'
+        bot.sendMessage(group, text=message)
         bot.sendMessage(group, text='Who is eating ' + meal_type + '?')
     else:
         bot.sendMessage(group, text='Another meal is running / unable to start meal')
