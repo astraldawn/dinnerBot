@@ -16,7 +16,7 @@ def help(bot, update):
 
 def info(bot, update):
     user_name, user_id, group = utils.get_info(update)
-    bot.sendMessage(group, text=user_name + ' ' + user_id)
+    bot.sendMessage(group, text=user_name + ' ' + str(user_id))
 
 
 # Register group (should automate this though)
