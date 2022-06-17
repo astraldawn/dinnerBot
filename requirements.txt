@@ -4,7 +4,7 @@ cymem==1.31.2
 future==0.15.2
 jsonpickle==0.9.3
 murmurhash==0.26.4
-numpy==1.11.1
+numpy==1.21.0
 plac==0.9.6
 preshed==0.46.4
 python-telegram-bot==5.0.0
